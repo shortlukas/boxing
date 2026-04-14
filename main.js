@@ -1,5 +1,10 @@
+import { Fighter } from "./Fighter.js";
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
+const f1 = new Fighter(ctx, 50, 50, 'wasdxc');
+const f2 = new Fighter(ctx, -50, -50, 'ijklnm');
 
 let ringImg = new Image();
 ringImg.src = "./images/ring2.png";
@@ -30,6 +35,8 @@ function step(t) {
 }
 
 function update(dt) {
+    f1.update(f2);
+    f2.update(f1);
     return;
 }
 
@@ -37,6 +44,10 @@ function draw(dt) {
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
     ctx.save();
     ctx.drawImage(ringImg, 50, 50, 500, 500);
+    ctx.translate(300, 300);
+    f1.draw(f2);
+    f2.draw(f1);
+    ctx.restore();
 }
 
 window.requestAnimationFrame(step);
