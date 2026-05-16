@@ -21,7 +21,6 @@ function step(t) {
     lastt = t;
 
     acc += Math.min(elaps, maxacc);
-    console.log(acc);
     while (acc >= delta) {
         update(delta/1000);
         acc -= delta;
@@ -35,8 +34,8 @@ function step(t) {
 }
 
 function update(dt) {
-    f1.update(f2);
-    f2.update(f1);
+    f1.update({x: 0,y: 0});
+    //f2.update(f1);
     return;
 }
 
@@ -45,8 +44,8 @@ function draw(dt) {
     ctx.save();
     ctx.drawImage(ringImg, 50, 50, 500, 500);
     ctx.translate(300, 300);
-    f1.draw(f2);
-    f2.draw(f1);
+    f1.draw({x:0,y:0});
+    //f2.draw(f1);
     ctx.restore();
 }
 

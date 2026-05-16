@@ -10,8 +10,12 @@ class Fighter {
         this.bodyimg.src        = "./images/redbody.png";
         this.headimg            = new Image();
         this.headimg.src        = "./images/redhead.png";
-        this.armsimg            = new Image();
-        this.armsimg.src        = "./images/redarmsidle.png";
+        this.armsimgs           = {
+            idle: new Image(),
+            jableft: new Image()
+        }
+        this.armsimgs.idle.src          = "./images/idle.png";
+        this.armsimgs.jableft.src       = "./images/jableft.png";
 
         this.keyup              = _k[0];
         this.keyleft            = _k[1];
@@ -24,6 +28,15 @@ class Fighter {
         this.down               = false;
         this.left               = false;
         this.right              = false;
+
+        this.anims              = {
+            "idle" :  {n: "idle", f: 3},
+            "jableft" :  {n: "jableft", f: 5}
+        }
+
+        this.animdata           = {a: this.anims.jableft, x: 0, y: 0}
+        this.animcd             = 0;
+        
 
         
         this.head               = {x: 0, y: 0}; //offset from center
@@ -46,17 +59,16 @@ class Fighter {
         let dx = f.x - this.x;
         let dy = f.y - this.y;
         this.dir = Math.atan2(dy, dx);
-        this.ctx.rotate(this.dir);
-        this.ctx.drawImage(this.armsimg, -120, -120, 240, 240);
-        this.ctx.rotate(this.body.d);
-
-        this.ctx.drawImage(this.bodyimg, -35, -35, 70, 70);
-        this.ctx.rotate(-this.body.d);
-        this.ctx.drawImage(this.headimg, -22 + this.head.y, -22 + this.head.x, 44, 44);
+        this.ctx.rotate(this.dir + Math.PI/2);
+        console.log(this.armsimgs, this.armsimgs[this.animdata.a.n], this.animdata.a)
+        this.ctx.drawImage(this.armsimgs[this.animdata.a.n], this.animdata.x*600, this.animdata.y*600, 600, 600, -120, -120, 240, 240);
+        console.log(this.armsimg, this.animdata.x, this.animdata.y);
+        this.ctx.drawImage(this.headimg, -22 + this.head.x, -22 + this.head.y, 44, 44);
 
         this.ctx.strokeStyle = "green";
         this.ctx.lineWidth = 2;
 
+        this.ctx.rotate(-Math.PI/2);
         for(let hb of this.hitbox) {
             this.ctx.strokeRect(hb.x - hb.w/2, hb.y - hb.h/2, hb.w, hb.h);
         }
@@ -70,10 +82,10 @@ class Fighter {
 
         if (this.up)   {this.x += Math.cos(this.dir) * this.speed;
                             this.y += Math.sin(this.dir) * this.speed;
-                        this.head.y += 1.5;}
+                        this.head.y -= 1.5;}
         if (this.down) {this.x -= Math.cos(this.dir) * this.speed;
                             this.y -= Math.sin(this.dir) * this.speed;
-                        this.head.y -= 1.5;}
+                        this.head.y += 1.5;}
 
         if (this.left || this.right) {
             let dx = this.x - f.x;
@@ -86,9 +98,22 @@ class Fighter {
             this.x = f.x + Math.cos(angle) * dist;
             this.y = f.y + Math.sin(angle) * dist;
         }
-        this.dir = Math.atan2(this.y - 0, this.x - 0);
+        this.dir = Math.atan2(this.y - f.y, this.x - f.x);
         this.head.x *= 0.8;
         this.head.y *= 0.8;
+
+        //Animation
+        this.animcd += 1;
+        if(this.animcd % 3 == 0) {this.animdata.x += 1;}
+        if(this.animdata.x > 9) {
+            this.animdata.x = 0; 
+            this.animdata.y += 1;
+        }
+        if(((this.animdata.y * 10) + (this.animdata.x) > this.animdata.a.f - 1)) {
+            this.runAnim("idle");
+            console.log("begin idle")
+        }
+        console.log(this.animdata.x)
     }
 
     keyDownHandler(e) {
@@ -104,6 +129,9 @@ class Fighter {
                 break;
             case this.keyright:
                 this.right = true;
+                break;
+            case this.keyhit:
+                this.runAnim("jableft");
                 break;
         }
     }
@@ -122,6 +150,12 @@ class Fighter {
                 this.right = false;
                 break;
         }
+    }
+
+    runAnim(a) {
+        this.animdata.a = this.anims[a];
+        this.animdata.x = 0;
+        this.animdata.y = 0;
     }
 }
 
